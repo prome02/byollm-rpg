@@ -1,0 +1,408 @@
+/* 性能級別CSS - 無GPU優化方案 */
+
+/* 基礎變量定義 */
+:root {
+    --animation-duration-fast: 150ms;
+    --animation-duration-normal: 300ms;
+    --animation-duration-slow: 600ms;
+    --transition-duration: 150ms;
+}
+
+/* 性能指示器樣式 */
+.performance-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #50fa7b;
+    font-size: 12px;
+    font-family: monospace;
+    border: 1px solid #50fa7b;
+    border-radius: 4px;
+    z-index: 10000;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+/* 效果暫停狀態 */
+.effects-paused * {
+    animation-play-state: paused !important;
+}
+
+/* ===== 極簡模式 (minimal) ===== */
+.performance-minimal {
+
+    /* 禁用大部分動畫 */
+    .glitch::before,
+    .glitch::after {
+        animation: none !important;
+    }
+
+    .noise,
+    .space-dust,
+    .data-stream,
+    .energy-field,
+    .quantum-wave,
+    .tactical-grid,
+    .matrix-rain,
+    .neural-network,
+    .quantum-circuit,
+    .gravity-wave,
+    .supernova,
+    .wormhole,
+    .black-hole,
+    .cmb-radiation,
+    .dark-matter {
+        display: none !important;
+    }
+
+    /* 簡化按鈕效果 */
+    .tactical-button,
+    .tactical-button-amber {
+        clip-path: none !important;
+        border-radius: 4px !important;
+        box-shadow: none !important;
+
+        &::before {
+            display: none !important;
+        }
+    }
+
+    /* 簡化邊框效果 */
+    .tactical-border {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+
+        &::before {
+            display: none !important;
+        }
+    }
+
+    /* 簡化文字效果 */
+    .tactical-text-teal,
+    .tactical-text-amber {
+        animation: none !important;
+        text-shadow: none !important;
+    }
+
+    /* 簡化輸入框 */
+    .tactical-input {
+        box-shadow: none !important;
+
+        &:focus {
+            box-shadow: none !important;
+            transform: none !important;
+        }
+    }
+
+    /* 簡化HUD元素 */
+    .hud-corner {
+        width: 10px !important;
+        height: 10px !important;
+        border-width: 1px !important;
+    }
+
+    /* 簡化滾動條 */
+    ::-webkit-scrollbar {
+        width: 2px !important;
+    }
+
+    /* 簡化掃描線 */
+    .scanline {
+        height: 1px !important;
+        animation-duration: 12s !important;
+    }
+
+    /* 簡化能量核心 */
+    .energy-core {
+        animation: none !important;
+        box-shadow: none !important;
+    }
+
+    /* 簡化脈衝效果 */
+    .pulse-tactical,
+    .tactical-blink {
+        animation: none !important;
+    }
+
+    /* 簡化故障效果 */
+    .flicker {
+        animation: none !important;
+    }
+
+    /* 簡化全息效果 */
+    .hologram-enhanced {
+        animation: none !important;
+        box-shadow: none !important;
+
+        &::before {
+            display: none !important;
+        }
+    }
+
+    /* 簡化時間膨脹 */
+    .time-dilation {
+        animation: none !important;
+
+        &::before,
+        &::after {
+            display: none !important;
+        }
+    }
+
+    /* 簡化多維度效果 */
+    .multidimensional {
+        animation: none !important;
+
+        &::before,
+        &::after {
+            display: none !important;
+        }
+    }
+}
+
+/* ===== 基礎模式 (basic) ===== */
+.performance-basic {
+
+    /* 保留基本動畫，但簡化 */
+    .noise {
+        opacity: 0.02 !important;
+        animation: none !important;
+    }
+
+    .space-dust {
+        opacity: 0.3 !important;
+        animation-duration: 200s !important;
+    }
+
+    .data-stream {
+        width: 1px !important;
+        animation-duration: 12s !important;
+    }
+
+    .matrix-rain {
+        opacity: 0.3 !important;
+
+        .matrix-column {
+            width: 8px !important;
+            animation-duration: 20s !important;
+        }
+
+        .matrix-char {
+            font-size: 8px !important;
+            line-height: 8px !important;
+        }
+    }
+
+    /* 簡化但保留的動畫 */
+    .tactical-button,
+    .tactical-button-amber {
+        clip-path: none !important;
+        border-radius: 4px !important;
+
+        &::before {
+            display: none !important;
+        }
+    }
+
+    .tactical-text-teal,
+    .tactical-text-amber {
+        animation: none !important;
+    }
+
+    .hologram-enhanced {
+        animation: none !important;
+
+        &::before {
+            display: none !important;
+        }
+    }
+
+    /* 禁用高級效果 */
+    .neural-network,
+    .quantum-circuit,
+    .gravity-wave,
+    .supernova,
+    .wormhole,
+    .black-hole,
+    .cmb-radiation,
+    .dark-matter,
+    .time-dilation,
+    .multidimensional {
+        display: none !important;
+    }
+}
+
+/* ===== 增強模式 (enhanced) ===== */
+.performance-enhanced {
+
+    /* 標準效果，但限制高級效果 */
+    .neural-network,
+    .quantum-circuit,
+    .gravity-wave,
+    .supernova,
+    .wormhole,
+    .black-hole,
+    .cmb-radiation,
+    .dark-matter,
+    .time-dilation,
+    .multidimensional {
+        opacity: 0.5 !important;
+    }
+
+    /* 優化粒子數量 */
+    .supernova-particle {
+        /* 減少粒子數量通過降低密度 */
+        animation-duration: 10s !important;
+    }
+
+    .matrix-column {
+        animation-duration: 15s !important;
+    }
+
+    .neural-node {
+        width: 3px !important;
+        height: 3px !important;
+    }
+
+    .quantum-gate {
+        width: 15px !important;
+        height: 15px !important;
+    }
+
+    .gravity-ripple {
+        animation-duration: 8s !important;
+    }
+
+    .wormhole-ring {
+        animation-duration: 8s !important;
+    }
+
+    .black-hole-accretion {
+        animation-duration: 4s !important;
+    }
+}
+
+/* ===== 完整模式 (full) ===== */
+.performance-full {
+    /* 所有效果都啟用 - 使用原始CSS */
+    /* 不需要額外規則，使用默認的完整效果 */
+}
+
+/* 響應式優化 */
+@media (max-width: 768px) {
+
+    .performance-enhanced,
+    .performance-full {
+
+        /* 在移動設備上降級增強和完整模式 */
+        .neural-network,
+        .quantum-circuit,
+        .gravity-wave,
+        .supernova,
+        .wormhole,
+        .black-hole,
+        .cmb-radiation,
+        .dark-matter,
+        .time-dilation,
+        .multidimensional {
+            opacity: 0.3 !important;
+        }
+
+        .matrix-column {
+            width: 6px !important;
+        }
+
+        .matrix-char {
+            font-size: 6px !important;
+            line-height: 6px !important;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+
+    .performance-basic,
+    .performance-enhanced,
+    .performance-full {
+
+        /* 在小屏幕上進一步簡化 */
+        .energy-field,
+        .quantum-wave,
+        .tactical-grid {
+            opacity: 0.2 !important;
+        }
+
+        .hologram-enhanced {
+            box-shadow: 0 0 10px rgba(80, 250, 123, 0.1) !important;
+        }
+    }
+}
+
+/* 性能降級狀態 */
+.performance-reduced * {
+    animation-duration: 200% !important;
+    animation-timing-function: linear !important;
+}
+
+/* 省電模式 */
+.power-save-mode {
+
+    .energy-core,
+    .pulse-tactical,
+    .tactical-blink {
+        animation: none !important;
+    }
+
+    .tactical-button,
+    .tactical-button-amber {
+        transform: none !important;
+    }
+}
+
+/* 高對比度支持 */
+@media (prefers-contrast: high) {
+
+    .performance-minimal,
+    .performance-basic,
+    .performance-enhanced,
+    .performance-full {
+        .tactical-border {
+            border-width: 2px !important;
+        }
+
+        .tactical-button,
+        .tactical-button-amber {
+            border-width: 2px !important;
+        }
+
+        .tactical-input {
+            border-width: 2px !important;
+        }
+    }
+}
+
+/* 減少運動支持 */
+@media (prefers-reduced-motion: reduce) {
+
+    .performance-minimal,
+    .performance-basic,
+    .performance-enhanced,
+    .performance-full {
+        * {
+            animation-duration: 200% !important;
+            animation-timing-function: linear !important;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            animation: none !important;
+        }
+
+        .tactical-text-teal,
+        .tactical-text-amber {
+            animation: none !important;
+        }
+    }
+}

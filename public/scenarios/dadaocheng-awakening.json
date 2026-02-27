@@ -1,0 +1,63 @@
+{
+  "id": "dadaocheng-awakening",
+  "title": "霓虹地獄 2088：第一章 - 大稻埕覺醒",
+  "startSceneId": "awakening",
+  "scenes": {
+    "awakening": {
+      "id": "awakening",
+      "story": "你在一片慘白色中睜開眼，空氣中瀰漫著廉價消毒水與鐵鏽味。左肩傳來陣陣抽痛——低頭一看，那裡空空如也。\n\n「編號 Josh-Alpha-01，治療費用 NT$ 2,450,000。請問現在支付還是分期？」醫療 AI 的聲音冰冷刺耳。",
+      "image": "/assets/generated/dadaocheng_hospital.png",
+      "options": [
+        { "text": "「我付你老母！」(罵髒話)", "nextSceneId": "verbal-confrontation" },
+        { "text": "嘗試撐起身體", "nextSceneId": "try-get-up" }
+      ]
+    },
+    "verbal-confrontation": {
+      "id": "verbal-confrontation",
+      "story": "你對著天花板一陣亂噴。醫療 AI 毫無波動地回覆：「理解情緒。已自動分期 60 期，月付 NT$ 42,000。」\n\n此時，一個白袍男人提著金屬箱走進病房：「Josh？我是新竹來的。這隻最新的 Prosthetic-X9 義肢，反射速度 0.03秒，要不要試試？」",
+      "image": "/assets/generated/x9_arm_presentation.png",
+      "options": [
+        { "text": "「行，給我接上。」", "nextSceneId": "arm-installation" },
+        { "text": "「這玩意兒多少錢？」", "nextSceneId": "negotiation" }
+      ]
+    },
+    "arm-installation": {
+      "id": "arm-installation",
+      "story": "一陣鑽心的酥麻感沿著神經竄上。X9 對接完成。你用力握拳，鈦合金手指發出低沈的馬達嗡鳴。\n\n「誠惠 180 萬。」白袍男搓著手，「或者... 那個廢棄的戰術終端給我玩玩，算你折抵 60 萬。」",
+      "image": "/assets/generated/arm_installed.png",
+      "options": [
+        { "text": "用戰術終端抵債", "nextSceneId": "debt-settled" }
+      ]
+    },
+    "debt-settled": {
+      "id": "debt-settled",
+      "story": "交易達成。雖然背負了百萬巨債，但你現在有了這隻超規格的左手。你突然想起你的副手林志浩 (Tango-7)，他還在那該死的淡水造船廠坑道裡。\n\n你扯掉監測條直接下床。門口傳來警衛機械犬的低鳴。",
+      "image": "/assets/generated/hospital_escape.png",
+      "options": [
+        { "text": "點起最後一支萬寶路", "nextSceneId": "marlboro-moment" }
+      ]
+    },
+    "marlboro-moment": {
+      "id": "marlboro-moment",
+      "story": "呼——濃煙模糊了機械犬的感測器。尼古丁讓你大腦的 15% 數位燒傷暫時穩定了下來。機械犬壓低身子，準備撲擊！",
+      "image": "/assets/generated/smoke_and_steel.png",
+      "options": [
+        { "text": "用 X9 左手硬接，直接抓碎它的喉嚨", "nextSceneId": "arm-showdown" }
+      ]
+    },
+    "arm-showdown": {
+      "id": "arm-showdown",
+      "story": "喀拉！液壓油噴了你滿臉。機械犬在你手下變成了一堆廢鐵。但巨大的反作用力也讓你胸口一甜。\n\n走廊盡頭的液壓鐵門正在緩緩下降，警報紅燈瘋狂閃爍...",
+      "image": "/assets/generated/dog_crushed.png",
+      "options": [
+        { "text": "全力衝刺 (待續)", "nextSceneId": "to-be-continued" }
+      ]
+    },
+    "to-be-continued": {
+      "id": "to-be-continued",
+      "story": "第一章結束。在大稻埕與淡水之間，地獄的大門才剛開啟。",
+      "image": "/assets/generated/neon_hell_logo.png",
+      "options": []
+    }
+  }
+}

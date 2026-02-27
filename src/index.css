@@ -1,0 +1,852 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import "tailwindcss";
+@import "./effects.css";
+@import "./performance-levels.css";
+
+@theme {
+  --color-tactical-teal: #00B4A6;
+  --color-tactical-amber: #ffb86c;
+  --color-tactical-warn: #f1fa8c;
+  --color-tactical-error: #ff5555;
+  --color-tactical-bg: #0B0E14;
+  --color-tactical-panel: #161B22;
+  --color-tactical-border: #30363D;
+
+  --font-family-mono: "Share Tech Mono", "Space Mono", "Courier New", monospace;
+  --font-family-display: "Orbitron", sans-serif;
+  --font-family-tech: "Rajdhani", sans-serif;
+  --font-family-primary: "Exo 2", "Rajdhani", sans-serif;
+}
+
+:root {
+  /* 顏色系統 - NASA Lake Green */
+  --color-tactical-teal: #00B4A6;
+  --color-tactical-amber: #ffb86c;
+  --color-tactical-warn: #f1fa8c;
+  --color-tactical-error: #ff5555;
+  --color-tactical-bg: #0B0E14;
+  --color-tactical-panel: #161B22;
+  --color-tactical-border: #30363D;
+  --color-tactical-glow: rgba(0, 180, 166, 0.6);
+  --color-tactical-shadow: rgba(0, 180, 166, 0.2);
+
+  /* 字體系統 */
+  --font-primary: 'Exo 2', 'Rajdhani', sans-serif;
+  --font-display: 'Orbitron', sans-serif;
+  --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+  --font-tech: 'Rajdhani', sans-serif;
+
+  /* 字體權重 */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+
+  /* 字體大小 */
+  --font-size-xs: 0.625rem;
+  /* 10px */
+  --font-size-sm: 0.75rem;
+  /* 12px */
+  --font-size-base: 0.875rem;
+  /* 14px */
+  --font-size-lg: 1rem;
+  /* 16px */
+  --font-size-xl: 1.125rem;
+  /* 18px */
+  --font-size-2xl: 1.25rem;
+  /* 20px */
+  --font-size-3xl: 1.5rem;
+  /* 24px */
+  --font-size-4xl: 2rem;
+  /* 32px */
+  --font-size-5xl: 2.5rem;
+  /* 40px */
+}
+
+/* 字體基礎樣式 */
+.font-primary {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-normal);
+  letter-spacing: 0.01em;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.05em;
+}
+
+.font-tech {
+  font-family: var(--font-tech);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
+}
+
+/* 深空背景效果 */
+body {
+  background-color: #0B0E14;
+  color: white;
+  margin: 0;
+  min-height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  background-image:
+    radial-gradient(ellipse at top, rgba(0, 180, 166, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(255, 184, 108, 0.02) 0%, transparent 50%),
+    linear-gradient(rgba(0, 180, 166, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 180, 166, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+  animation: backgroundShift 20s ease-in-out infinite;
+}
+
+@keyframes backgroundShift {
+
+  0%,
+  100% {
+    background-position: 0% 0%, 0% 100%, 0 0, 0 0;
+  }
+
+  50% {
+    background-position: 100% 0%, 0% 0%, 20px 20px, 20px 20px;
+  }
+}
+
+/* 故障效果增強 */
+.glitch {
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-black);
+  text-shadow: 0 0 10px var(--color-tactical-glow);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -2px 0 var(--color-tactical-teal), 0 0 20px var(--color-tactical-glow);
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 3s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: -2px 0 var(--color-tactical-amber), 0 0 20px rgba(255, 184, 108, 0.6);
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim2 3s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% {
+    clip: rect(31px, 9999px, 94px, 0);
+    transform: skew(0.5deg);
+  }
+
+  20% {
+    clip: rect(62px, 9999px, 42px, 0);
+    transform: skew(-0.3deg);
+  }
+
+  40% {
+    clip: rect(10px, 9999px, 81px, 0);
+    transform: skew(0.4deg);
+  }
+
+  60% {
+    clip: rect(78px, 9999px, 12px, 0);
+    transform: skew(-0.2deg);
+  }
+
+  80% {
+    clip: rect(44px, 9999px, 56px, 0);
+    transform: skew(0.3deg);
+  }
+
+  100% {
+    clip: rect(9px, 9999px, 24px, 0);
+    transform: skew(-0.4deg);
+  }
+}
+
+@keyframes glitch-anim2 {
+  0% {
+    clip: rect(65px, 9999px, 100px, 0);
+    transform: skew(-0.3deg);
+  }
+
+  20% {
+    clip: rect(12px, 9999px, 54px, 0);
+    transform: skew(0.2deg);
+  }
+
+  40% {
+    clip: rect(87px, 9999px, 23px, 0);
+    transform: skew(-0.4deg);
+  }
+
+  60% {
+    clip: rect(3px, 9999px, 78px, 0);
+    transform: skew(0.3deg);
+  }
+
+  80% {
+    clip: rect(55px, 9999px, 11px, 0);
+    transform: skew(-0.2deg);
+  }
+
+  100% {
+    clip: rect(44px, 9999px, 98px, 0);
+    transform: skew(0.4deg);
+  }
+}
+
+/* 增強噪點效果 */
+.noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 999;
+  animation: noiseAnim 0.5s infinite;
+}
+
+@keyframes noiseAnim {
+
+  0%,
+  100% {
+    opacity: 0.05;
+  }
+
+  50% {
+    opacity: 0.08;
+  }
+}
+
+/* 戰術邊框增強 */
+.tactical-border {
+  position: relative;
+  border: 1px solid rgba(0, 180, 166, 0.4);
+  box-shadow: 0 0 15px rgba(0, 180, 166, 0.2);
+  background: linear-gradient(135deg, rgba(0, 180, 166, 0.05) 0%, transparent 50%);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.tactical-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(0, 180, 166, 0.1) 50%, transparent 70%);
+  animation: borderGlow 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes borderGlow {
+
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* 戰術文字效果 */
+.tactical-text-teal {
+  color: #00B4A6;
+  filter: drop-shadow(0 0 6px rgba(0, 180, 166, 0.6));
+  font-family: var(--font-tech);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  animation: textPulse 3s ease-in-out infinite;
+}
+
+.tactical-text-amber {
+  color: #ffb86c;
+  filter: drop-shadow(0 0 6px rgba(255, 184, 108, 0.6));
+  font-family: var(--font-tech);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  animation: textPulse 4s ease-in-out infinite;
+}
+
+@keyframes textPulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* 戰術按鈕增強 */
+.tactical-button {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 2px solid #00B4A6;
+  color: #00B4A6;
+  transition: all 0.3s;
+  font-family: var(--font-tech);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 90% 100%, 0 100%);
+  box-shadow: 0 0 10px rgba(0, 180, 166, 0.3);
+  overflow: hidden;
+}
+
+.tactical-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 180, 166, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.tactical-button:hover {
+  background: rgba(0, 180, 166, 0.2);
+  color: #00B4A6;
+  box-shadow: 0 0 20px rgba(0, 180, 166, 0.5);
+  transform: translateY(-2px);
+}
+
+.tactical-button:hover::before {
+  left: 100%;
+}
+
+.tactical-button:active {
+  transform: translateY(0);
+  box-shadow: 0 0 10px rgba(0, 180, 166, 0.3);
+}
+
+.tactical-button-amber {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 2px solid #ffb86c;
+  color: #ffb86c;
+  transition: all 0.3s;
+  font-family: var(--font-tech);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 30%);
+  box-shadow: 0 0 10px rgba(255, 184, 108, 0.3);
+  overflow: hidden;
+}
+
+.tactical-button-amber::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 184, 108, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.tactical-button-amber:hover {
+  background: rgba(255, 184, 108, 0.2);
+  color: #ffb86c;
+  box-shadow: 0 0 20px rgba(255, 184, 108, 0.5);
+  transform: translateY(-2px);
+}
+
+.tactical-button-amber:hover::before {
+  left: 100%;
+}
+
+.tactical-button-amber:active {
+  transform: translateY(0);
+  box-shadow: 0 0 10px rgba(255, 184, 108, 0.3);
+}
+
+/* 戰術輸入框增強 */
+.tactical-input {
+  background: #161B22;
+  border: 2px solid rgba(0, 180, 166, 0.7);
+  padding: 1rem;
+  outline: none;
+  transition: all 0.3s;
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.05em;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 8px rgba(0, 180, 166, 0.15);
+  color: #00B4A6;
+}
+
+.tactical-input::placeholder {
+  color: rgba(0, 180, 166, 0.45);
+  font-style: italic;
+  font-weight: var(--font-weight-light);
+}
+
+.tactical-input:focus {
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 180, 166, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 掃描線效果增強 */
+.scanline {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 180, 166, 0.3), rgba(0, 180, 166, 0.6), rgba(0, 180, 166, 0.3), transparent);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  pointer-events: none;
+  animation: scanline 6s linear infinite;
+  box-shadow: 0 0 10px rgba(0, 180, 166, 0.5);
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  5% {
+    opacity: 1;
+  }
+
+  95% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+/* CRT 閃爍效果增強 */
+.flicker {
+  animation: flicker 0.12s infinite;
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 0.97;
+    filter: brightness(1) contrast(1);
+  }
+
+  5% {
+    opacity: 0.95;
+    filter: brightness(0.98) contrast(1.02);
+  }
+
+  10% {
+    opacity: 0.9;
+    filter: brightness(1.02) contrast(0.98);
+  }
+
+  15% {
+    opacity: 0.95;
+    filter: brightness(0.99) contrast(1.01);
+  }
+
+  25% {
+    opacity: 0.95;
+    filter: brightness(1.01) contrast(0.99);
+  }
+
+  30% {
+    opacity: 0.9;
+    filter: brightness(0.97) contrast(1.03);
+  }
+
+  50% {
+    opacity: 0.95;
+    filter: brightness(1.03) contrast(0.97);
+  }
+
+  60% {
+    opacity: 0.98;
+    filter: brightness(0.99) contrast(1.01);
+  }
+
+  70% {
+    opacity: 0.95;
+    filter: brightness(1.01) contrast(0.99);
+  }
+
+  80% {
+    opacity: 0.9;
+    filter: brightness(0.98) contrast(1.02);
+  }
+
+  90% {
+    opacity: 0.95;
+    filter: brightness(1.02) contrast(0.98);
+  }
+
+  100% {
+    opacity: 0.97;
+    filter: brightness(1) contrast(1);
+  }
+}
+
+/* HUD 元素增強 */
+.hud-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--color-tactical-teal);
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.hud-corner:hover {
+  opacity: 1;
+  box-shadow: 0 0 10px var(--color-tactical-glow);
+}
+
+/* 優雅的字體動畫 */
+.font-glow {
+  animation: fontGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes fontGlow {
+  0% {
+    text-shadow: 0 0 5px currentColor;
+  }
+
+  100% {
+    text-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+  }
+}
+
+.font-pulse-elegant {
+  animation: fontPulseElegant 3s ease-in-out infinite;
+}
+
+@keyframes fontPulseElegant {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+/* 字體流暢動畫 */
+.font-flow {
+  animation: fontFlow 4s ease-in-out infinite;
+}
+
+@keyframes fontFlow {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    filter: blur(0px);
+  }
+
+  25% {
+    transform: translateY(-1px) rotate(0.2deg);
+    filter: blur(0.2px);
+  }
+
+  75% {
+    transform: translateY(1px) rotate(-0.2deg);
+    filter: blur(0.2px);
+  }
+}
+
+/* 優雅的字體過渡 */
+.font-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.font-transition:hover {
+  transform: translateY(-2px);
+  letter-spacing: 0.08em;
+}
+
+/* 精緻的字體陰影 */
+.font-shadow-elegant {
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    0 0 20px var(--color-tactical-glow);
+}
+
+/* 立體字體效果 */
+.font-3d {
+  text-shadow:
+    1px 1px 0 rgba(0, 0, 0, 0.8),
+    2px 2px 0 rgba(0, 0, 0, 0.6),
+    3px 3px 0 rgba(0, 0, 0, 0.4),
+    4px 4px 0 rgba(0, 0, 0, 0.2),
+    0 0 20px var(--color-tactical-glow);
+}
+
+.hud-tl {
+  top: 0;
+  left: 0;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+
+.hud-tr {
+  top: 0;
+  right: 0;
+  border-top: 2px solid;
+  border-right: 2px solid;
+}
+
+.hud-bl {
+  bottom: 0;
+  left: 0;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+}
+
+.hud-br {
+  bottom: 0;
+  right: 0;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
+
+/* 自定義滾動條增強 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-tactical-bg);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(0, 180, 166, 0.4) 0%, rgba(0, 180, 166, 0.6) 50%, rgba(0, 180, 166, 0.4) 100%);
+  border-radius: 3px;
+  border: 1px solid rgba(0, 180, 166, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(0, 180, 166, 0.6) 0%, rgba(0, 180, 166, 0.8) 50%, rgba(0, 180, 166, 0.6) 100%);
+  box-shadow: 0 0 5px rgba(0, 180, 166, 0.5);
+}
+
+/* 脈衝效果 */
+.pulse-tactical {
+  animation: pulseTactical 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseTactical {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* 能量波效果 */
+.energy-wave {
+  position: relative;
+  overflow: hidden;
+}
+
+.energy-wave::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 180, 166, 0.1), transparent);
+  animation: energyWave 3s infinite;
+}
+
+@keyframes energyWave {
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+/* 全息投影效果 */
+.hologram {
+  position: relative;
+  background: linear-gradient(135deg, rgba(0, 180, 166, 0.1) 0%, transparent 50%, rgba(255, 184, 108, 0.1) 100%);
+  border: 1px solid rgba(0, 180, 166, 0.3);
+  box-shadow:
+    0 0 20px rgba(0, 180, 166, 0.2),
+    inset 0 0 20px rgba(0, 180, 166, 0.1);
+  animation: hologramFlicker 4s ease-in-out infinite;
+}
+
+@keyframes hologramFlicker {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  25% {
+    opacity: 0.95;
+  }
+
+  50% {
+    opacity: 0.9;
+  }
+
+  75% {
+    opacity: 0.95;
+  }
+}
+
+/* 響應式字體優化 */
+@media (max-width: 768px) {
+  :root {
+    --font-size-xs: 0.5rem;
+    /* 8px */
+    --font-size-sm: 0.625rem;
+    /* 10px */
+    --font-size-base: 0.75rem;
+    /* 12px */
+    --font-size-lg: 0.875rem;
+    /* 14px */
+    --font-size-xl: 1rem;
+    /* 16px */
+  }
+
+  .tactical-button,
+  .tactical-button-amber {
+    padding: 0.5rem 1rem;
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.15em;
+  }
+
+  .tactical-input {
+    padding: 0.75rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .hud-corner {
+    width: 15px;
+    height: 15px;
+  }
+
+  .font-display {
+    font-size: var(--font-size-xl);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-size-xs: 0.5rem;
+    /* 8px */
+    --font-size-sm: 0.625rem;
+    /* 10px */
+    --font-size-base: 0.6875rem;
+    /* 11px */
+  }
+
+  .tactical-button,
+  .tactical-button-amber {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.1em;
+    clip-path: none;
+    border-radius: 4px;
+  }
+
+  .tactical-input {
+    padding: 0.5rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .glitch {
+    text-shadow: 0 0 5px var(--color-tactical-glow);
+    font-size: var(--font-size-lg);
+  }
+
+  .font-display {
+    font-size: var(--font-size-base);
+  }
+}
+
+/* 優雅的字體層次 */
+.text-hierarchy-primary {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-black);
+  font-size: var(--font-size-4xl);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.text-hierarchy-secondary {
+  font-family: var(--font-tech);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.text-hierarchy-body {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-base);
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+}
+
+.text-hierarchy-mono {
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.02em;
+}

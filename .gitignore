@@ -1,0 +1,47 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Screenshots and temp dev files
+screenshot-*.png
+*.pen
+pw-screenshot.mjs
+tsconfig.tsbuildinfo
+
+# Design files
+images/
+pencil-new.pen
+
+# Save game data
+data/vault/
+
+# Unpublished scripts
+public/data/scripts/voyage-to-oort/
+public/scenarios/oort-cloud.json
+
+# Local config
+.claude/
+
+# Package manager lockfiles (project uses npm)
+bun.lock
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

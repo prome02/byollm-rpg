@@ -1,0 +1,539 @@
+/* 高級科幻效果集合 */
+
+/* 神經網絡連接效果 */
+.neural-network {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.neural-node {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--color-tactical-teal);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--color-tactical-glow);
+    animation: neuralPulse 2s ease-in-out infinite;
+}
+
+.neural-connection {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-tactical-teal), transparent);
+    animation: neuralFlow 3s linear infinite;
+    opacity: 0.6;
+}
+
+@keyframes neuralPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.5);
+        opacity: 0.7;
+    }
+}
+
+@keyframes neuralFlow {
+    0% {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scaleX(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+}
+
+/* 量子計算效果 */
+.quantum-circuit {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.quantum-bit {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border: 1px solid var(--color-tactical-teal);
+    border-radius: 50%;
+    animation: quantumSuperposition 4s ease-in-out infinite;
+}
+
+.quantum-gate {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-tactical-amber);
+    background: rgba(255, 184, 108, 0.1);
+    animation: quantumGate 2s steps(1) infinite;
+}
+
+@keyframes quantumSuperposition {
+
+    0%,
+    100% {
+        background: var(--color-tactical-teal);
+        box-shadow: 0 0 15px var(--color-tactical-glow);
+    }
+
+    25% {
+        background: transparent;
+        box-shadow: inset 0 0 10px var(--color-tactical-glow);
+    }
+
+    50% {
+        background: var(--color-tactical-amber);
+        box-shadow: 0 0 15px rgba(255, 184, 108, 0.6);
+    }
+
+    75% {
+        background: transparent;
+        border-color: var(--color-tactical-warn);
+    }
+}
+
+@keyframes quantumGate {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    25% {
+        transform: rotate(90deg) scale(1.1);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(0.9);
+    }
+
+    75% {
+        transform: rotate(270deg) scale(1.1);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+/* 重力波效果 */
+.gravity-wave {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.gravity-ripple {
+    position: absolute;
+    border: 1px solid rgba(80, 250, 123, 0.3);
+    border-radius: 50%;
+    animation: gravityRipple 6s ease-out infinite;
+}
+
+@keyframes gravityRipple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    100% {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* 暗物質效果 */
+.dark-matter {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(80, 250, 123, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 184, 108, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(241, 250, 140, 0.02) 0%, transparent 50%);
+    animation: darkMatterShift 25s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes darkMatterShift {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(-20px, -10px) scale(1.05);
+    }
+
+    66% {
+        transform: translate(15px, -20px) scale(0.95);
+    }
+}
+
+/* 超新星爆炸效果 */
+.supernova {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.supernova-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 184, 108, 0.8) 0%, rgba(80, 250, 123, 0.4) 50%, transparent 70%);
+    border-radius: 50%;
+    animation: supernovaBurst 8s ease-out infinite;
+    transform: translate(-50%, -50%);
+}
+
+.supernova-particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--color-tactical-amber);
+    border-radius: 50%;
+    animation: supernovaParticle 8s linear infinite;
+}
+
+@keyframes supernovaBurst {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+
+    20% {
+        width: 100px;
+        height: 100px;
+        opacity: 0.8;
+    }
+
+    100% {
+        width: 500px;
+        height: 500px;
+        opacity: 0;
+    }
+}
+
+@keyframes supernovaParticle {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0);
+        opacity: 0;
+    }
+}
+
+/* 蟲洞效果 */
+.wormhole {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.wormhole-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border: 2px solid rgba(80, 250, 123, 0.4);
+    border-radius: 50%;
+    animation: wormholeRing 10s ease-in-out infinite;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes wormholeRing {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0;
+        border-color: rgba(80, 250, 123, 0.8);
+    }
+
+    50% {
+        width: 200px;
+        height: 200px;
+        opacity: 1;
+        border-color: rgba(255, 184, 108, 0.6);
+    }
+
+    100% {
+        width: 0;
+        height: 0;
+        opacity: 0;
+        border-color: rgba(241, 250, 140, 0.4);
+    }
+}
+
+/* 時間膨脹效果 */
+.time-dilation {
+    position: relative;
+    animation: timeDilation 12s ease-in-out infinite;
+}
+
+@keyframes timeDilation {
+
+    0%,
+    100% {
+        filter: hue-rotate(0deg) saturate(1) brightness(1);
+        transform: scale(1);
+    }
+
+    25% {
+        filter: hue-rotate(30deg) saturate(1.2) brightness(0.9);
+        transform: scale(1.02);
+    }
+
+    50% {
+        filter: hue-rotate(-20deg) saturate(0.8) brightness(1.1);
+        transform: scale(0.98);
+    }
+
+    75% {
+        filter: hue-rotate(10deg) saturate(1.1) brightness(0.95);
+        transform: scale(1.01);
+    }
+}
+
+/* 宇宙微波背景輻射效果 */
+.cmb-radiation {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(ellipse at 10% 10%, rgba(80, 250, 123, 0.02) 0%, transparent 30%),
+        radial-gradient(ellipse at 90% 90%, rgba(255, 184, 108, 0.01) 0%, transparent 30%),
+        radial-gradient(ellipse at 50% 50%, rgba(241, 250, 140, 0.01) 0%, transparent 50%);
+    animation: cmbShift 30s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes cmbShift {
+
+    0%,
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    33% {
+        transform: translate(5px, -3px) rotate(0.2deg);
+    }
+
+    66% {
+        transform: translate(-3px, 5px) rotate(-0.1deg);
+    }
+}
+
+/* 黑洞效果 */
+.black-hole {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.black-hole-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle, #000 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: blackHolePulse 3s ease-in-out infinite;
+    box-shadow: 0 0 30px #000;
+}
+
+.black-hole-accretion {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border: 1px solid rgba(80, 250, 123, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: accretionDisk 5s linear infinite;
+}
+
+@keyframes blackHolePulse {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+@keyframes accretionDisk {
+    0% {
+        width: 50px;
+        height: 50px;
+        opacity: 0.8;
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        width: 200px;
+        height: 200px;
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* 多維度效果 */
+.multidimensional {
+    position: relative;
+    transform-style: preserve-3d;
+    animation: multidimensionalRotate 20s linear infinite;
+}
+
+.multidimensional::before,
+.multidimensional::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(80, 250, 123, 0.2);
+    animation: multidimensionalLayer 15s ease-in-out infinite;
+}
+
+.multidimensional::before {
+    transform: translateZ(-10px) rotateY(15deg);
+    animation-delay: 0s;
+}
+
+.multidimensional::after {
+    transform: translateZ(-20px) rotateY(-15deg);
+    animation-delay: 5s;
+}
+
+@keyframes multidimensionalRotate {
+    0% {
+        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    }
+
+    100% {
+        transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+    }
+}
+
+@keyframes multidimensionalLayer {
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* 響應式優化 */
+@media (max-width: 768px) {
+    .neural-node {
+        width: 3px;
+        height: 3px;
+    }
+
+    .quantum-gate {
+        width: 15px;
+        height: 15px;
+    }
+
+    .supernova-particle {
+        width: 1px;
+        height: 1px;
+    }
+
+    .wormhole-ring {
+        animation-duration: 6s;
+    }
+
+    .black-hole-accretion {
+        animation-duration: 3s;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .neural-network,
+    .quantum-circuit,
+    .gravity-wave,
+    .supernova,
+    .wormhole,
+    .black-hole,
+    .multidimensional {
+        opacity: 0.5;
+    }
+
+    .dark-matter,
+    .cmb-radiation {
+        opacity: 0.3;
+    }
+}
+
+/* 性能優化 */
+@media (prefers-reduced-motion: reduce) {
+
+    .neural-node,
+    .neural-connection,
+    .quantum-bit,
+    .quantum-gate,
+    .gravity-ripple,
+    .dark-matter,
+    .supernova-burst,
+    .supernova-particle,
+    .wormhole-ring,
+    .time-dilation,
+    .cmb-radiation,
+    .black-hole-center,
+    .black-hole-accretion,
+    .multidimensional,
+    .multidimensional::before,
+    .multidimensional::after {
+        animation: none;
+    }
+}
