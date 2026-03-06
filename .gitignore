@@ -45,3 +45,5 @@ bun.lock
 *.njsproj
 *.sln
 *.sw?
+
+CLAUDE.md

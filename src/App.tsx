@@ -1,11 +1,22 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
+import { sanitizePlayerInput } from './utils/sanitizePlayerInput';
 import { PerformanceManager } from './utils/PerformanceManager';
 import type { OllamaConfig, ScriptMeta, Milestone, SaveGame } from './types/script';
 import { loadOllamaConfig, saveOllamaConfig, loadSaveGame, saveSaveGame, clearSaveGame } from './services/storage';
-import { streamCompletion } from './services/ollama';
+import { streamCompletion, generateText } from './services/ollama';
 import { loadScriptMeta, loadMilestones, getMilestoneById } from './services/scriptLoader';
 import './App.css';
+
+function formatRelativeTime(isoString: string): string {
+  const diff = Date.now() - new Date(isoString).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return '剛剛';
+  if (minutes < 60) return `${minutes} 分鐘前`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} 小時前`;
+  return `${Math.floor(hours / 24)} 天前`;
+}
 
 const HUDCorner = () => (
   <>
@@ -26,6 +37,41 @@ const EntryPage = ({ onJoin }: { onJoin: (config: OllamaConfig, scriptId: Script
   const [model, setModel] = useState<string>(saved.model);
   const [scripts, setScripts] = useState<ScriptEntry[]>([]);
   const [selectedScript, setSelectedScript] = useState<ScriptId>('');
+  const [scriptSaves, setScriptSaves] = useState<Record<string, SaveGame | null>>({});
+  const [ollamaModels, setOllamaModels] = useState<string[]>([]);
+  const [isFetchingModels, setIsFetchingModels] = useState(false);
+
+  const isOllamaEndpoint = (url: string) => {
+    try {
+      return new URL(url.trim()).port === '11434';
+    } catch {
+      return false;
+    }
+  };
+
+  const fetchOllamaModels = (url: string) => {
+    const base = url.trim().replace(/\/$/, '');
+    setIsFetchingModels(true);
+    fetch(`${base}/api/tags`)
+      .then((r) => r.json())
+      .then((data: { models?: { name: string }[] }) => {
+        const names = (data.models ?? []).map((m) => m.name).sort();
+        setOllamaModels(names);
+        if (names.length > 0 && !names.includes(model)) {
+          setModel(names[0]);
+        }
+      })
+      .catch(() => setOllamaModels([]))
+      .finally(() => setIsFetchingModels(false));
+  };
+
+  useEffect(() => {
+    if (isOllamaEndpoint(endpoint)) {
+      fetchOllamaModels(endpoint);
+    } else {
+      setOllamaModels([]);
+    }
+  }, [endpoint]);
 
   useEffect(() => {
     fetch('/scenarios/manifest.json')
@@ -33,6 +79,11 @@ const EntryPage = ({ onJoin }: { onJoin: (config: OllamaConfig, scriptId: Script
       .then((data: ScriptEntry[]) => {
         setScripts(data);
         if (data.length > 0) setSelectedScript(data[0].id);
+        const saves: Record<string, SaveGame | null> = {};
+        for (const script of data) {
+          saves[script.id] = loadSaveGame(script.id);
+        }
+        setScriptSaves(saves);
       })
       .catch((err) => console.error('Failed to load scenario manifest:', err));
   }, []);
@@ -114,6 +165,16 @@ const EntryPage = ({ onJoin }: { onJoin: (config: OllamaConfig, scriptId: Script
                     {script.title}
                   </div>
                   <div className="text-[10px] text-white/25 mt-0.5">{script.subtitle}</div>
+                  {scriptSaves[script.id] ? (
+                    <div className="text-[9px] text-tactical-teal/60 mt-1 font-mono">
+                      {scriptSaves[script.id]!.current_milestone}
+                      {scriptSaves[script.id]!.savedAt && (
+                        <span className="text-white/20 ml-1">· {formatRelativeTime(scriptSaves[script.id]!.savedAt!)}</span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-[9px] text-white/15 mt-1 font-mono">尚未開始</div>
+                  )}
                 </div>
                 {selectedScript === script.id && (
                   <span className="text-[7px] font-bold tracking-widest text-tactical-bg bg-tactical-teal px-1.5 py-0.5 rounded shrink-0">
@@ -142,15 +203,37 @@ const EntryPage = ({ onJoin }: { onJoin: (config: OllamaConfig, scriptId: Script
               />
             </div>
             <div className="flex-1">
-              <div className="text-[8px] text-white/20 uppercase tracking-widest font-tech mb-1.5">MODEL</div>
-              <input
-                type="text"
-                className={`w-full bg-tactical-panel border rounded-lg px-4 py-3 text-sm text-tactical-teal font-mono placeholder:text-white/20 outline-none transition-colors focus:border-tactical-teal/60 ${isError ? 'border-tactical-error flicker' : 'border-white/10'}`}
-                placeholder="minimax-m2.5:cloud"
-                value={model}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setModel(e.target.value)}
-                onKeyDown={handleKeyDown}
-              />
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-[8px] text-white/20 uppercase tracking-widest font-tech">MODEL</span>
+                {isFetchingModels && (
+                  <span className="text-[7px] text-tactical-teal/50 font-tech animate-pulse">SCANNING...</span>
+                )}
+                {!isFetchingModels && ollamaModels.length > 0 && (
+                  <span className="text-[7px] text-tactical-teal/50 font-tech">{ollamaModels.length} AVAILABLE</span>
+                )}
+              </div>
+              {ollamaModels.length > 0 ? (
+                <select
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  className={`w-full bg-tactical-panel border rounded-lg px-4 py-3 text-sm text-tactical-teal font-mono outline-none transition-colors focus:border-tactical-teal/60 appearance-none cursor-pointer ${isError ? 'border-tactical-error flicker' : 'border-white/10'}`}
+                >
+                  {ollamaModels.map((m) => (
+                    <option key={m} value={m} className="bg-tactical-panel text-tactical-teal">
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  className={`w-full bg-tactical-panel border rounded-lg px-4 py-3 text-sm text-tactical-teal font-mono placeholder:text-white/20 outline-none transition-colors focus:border-tactical-teal/60 ${isError ? 'border-tactical-error flicker' : 'border-white/10'}`}
+                  placeholder="minimax-m2.5:cloud"
+                  value={model}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setModel(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -181,34 +264,60 @@ const MainPage = ({ config, scriptId, onRestart }: { config: OllamaConfig; scrip
   const [displayText, setDisplayText] = useState<string>('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveConflict, setSaveConflict] = useState<{ milestoneId: string; startMilestone: string } | null>(null);
   const [glitchActive, setGlitchActive] = useState(false);
+  const [freeInputText, setFreeInputText] = useState('');
+  const [freeInputError, setFreeInputError] = useState(false);
+  const [dynamicChoices, setDynamicChoices] = useState<string[] | null>(null);
+  const lastNarrativeRef = useRef<string>('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const currentMilestone = useMemo(() => {
-    if (!saveGame || milestones.length === 0) return null;
-    return getMilestoneById(milestones, saveGame.current_milestone) ?? null;
+    if (!saveGame || milestones.length === 0) {
+      console.log('[MainPage] currentMilestone: null (saveGame=%o, milestones=%d)', saveGame, milestones.length);
+      return null;
+    }
+    const m = getMilestoneById(milestones, saveGame.current_milestone) ?? null;
+    console.log('[MainPage] currentMilestone resolved:', m?.id ?? 'NOT FOUND', '(looking for', saveGame.current_milestone, ')');
+    return m;
   }, [saveGame, milestones]);
 
   useEffect(() => {
+    console.log('[MainPage] loading script:', scriptId);
     Promise.all([
       loadScriptMeta(scriptId),
       loadMilestones(scriptId),
     ]).then(([loadedMeta, loadedMilestones]) => {
+      console.log('[MainPage] meta loaded:', loadedMeta);
+      console.log('[MainPage] milestones loaded:', loadedMilestones.length, 'entries');
       setMeta(loadedMeta);
       setMilestones(loadedMilestones);
       const existing = loadSaveGame(scriptId);
-      if (existing && existing.script_id === scriptId) {
+      console.log('[MainPage] existing save:', existing);
+      const milestoneExists = (id: string) => loadedMilestones.some((m) => m.id === id);
+      if (existing && existing.script_id === scriptId && milestoneExists(existing.current_milestone)) {
+        console.log('[MainPage] restoring save, milestone:', existing.current_milestone);
         setSaveGame(existing);
+      } else if (existing && existing.script_id === scriptId && !milestoneExists(existing.current_milestone)) {
+        console.warn('[MainPage] save milestone not found, prompting user:', existing.current_milestone);
+        setSaveConflict({ milestoneId: existing.current_milestone, startMilestone: loadedMeta.start });
+        setMeta(loadedMeta);
+        setMilestones(loadedMilestones);
+        return;
       } else {
         const newGame: SaveGame = {
           script_id: scriptId,
           current_milestone: loadedMeta.start,
           history: [],
         };
+        console.log('[MainPage] new game, start milestone:', newGame.current_milestone);
         setSaveGame(newGame);
         saveSaveGame(newGame);
       }
-    }).catch(err => setError(String(err)));
+    }).catch(err => {
+      console.error('[MainPage] load error:', err);
+      setError(String(err));
+    });
   }, []);
 
   useEffect(() => {
@@ -216,6 +325,40 @@ const MainPage = ({ config, scriptId, onRestart }: { config: OllamaConfig; scrip
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [displayText]);
+
+  const rewriteChoices = (choices: string[], narrative: string): (() => void) => {
+    let cancelled = false;
+    if (!choices.length || !narrative) return () => {};
+    const messages = [
+      {
+        role: 'system' as const,
+        content: '你是敘事助理。根據以下劇情，將選項文字改寫得更自然，更融入當前氛圍。保持每個選項的核心決策意圖不變，只優化措辭和語感。回覆格式：只回覆JSON陣列，例如["選項A","選項B"]，不要任何其他文字。',
+      },
+      {
+        role: 'user' as const,
+        content: `剛才的劇情：\n${narrative}\n\n原選項：${JSON.stringify(choices)}`,
+      },
+    ];
+    generateText(config, messages)
+      .then((text) => {
+        if (cancelled) return;
+        const match = text.match(/\[[\s\S]*?\]/);
+        if (!match) return;
+        const parsed = JSON.parse(match[0]) as string[];
+        if (Array.isArray(parsed) && parsed.length === choices.length) {
+          setDynamicChoices(parsed);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  };
+
+  useEffect(() => {
+    setDynamicChoices(null);
+    if (!currentMilestone || !lastNarrativeRef.current || !meta) return;
+    const cancel = rewriteChoices(currentMilestone.choices, lastNarrativeRef.current);
+    return cancel;
+  }, [currentMilestone?.id]);
 
   const handleChoice = (choice: string) => {
     if (!meta || !currentMilestone || !saveGame || isStreaming) return;
@@ -245,6 +388,7 @@ const MainPage = ({ config, scriptId, onRestart }: { config: OllamaConfig; scrip
         }
       },
       (fullText) => {
+        lastNarrativeRef.current = fullText;
         const nextMilestoneId = currentMilestone.next[choice];
         const updatedHistory = [
           ...saveGame.history,
@@ -267,11 +411,118 @@ const MainPage = ({ config, scriptId, onRestart }: { config: OllamaConfig; scrip
     );
   };
 
+  const handleFreeInput = () => {
+    if (!meta || !currentMilestone || !saveGame || isStreaming) return;
+
+    const sanitized = sanitizePlayerInput(freeInputText);
+    if (!sanitized) {
+      setFreeInputError(true);
+      setTimeout(() => setFreeInputError(false), 800);
+      return;
+    }
+
+    setFreeInputText('');
+    setIsStreaming(true);
+    setError(null);
+
+    const userMessage = `情境：${currentMilestone.context}，玩家自由行動：${sanitized}`;
+    const messages = [
+      { role: 'system' as const, content: meta.system_prompt },
+      ...saveGame.history,
+      { role: 'user' as const, content: userMessage },
+    ];
+
+    setDisplayText(prev => prev + `\n\n> ${sanitized}\n`);
+
+    streamCompletion(
+      config,
+      messages,
+      (chunk) => {
+        setDisplayText(prev => prev + chunk);
+        if (Math.random() > 0.97) {
+          setGlitchActive(true);
+          setTimeout(() => setGlitchActive(false), 80);
+        }
+      },
+      (fullText) => {
+        // milestone does NOT advance for free input
+        lastNarrativeRef.current = fullText;
+        setDynamicChoices(null);
+        rewriteChoices(currentMilestone.choices, fullText);
+        const updatedHistory = [
+          ...saveGame.history,
+          { role: 'user' as const, content: userMessage },
+          { role: 'assistant' as const, content: fullText },
+        ];
+        const updatedGame: SaveGame = {
+          ...saveGame,
+          history: updatedHistory,
+        };
+        setSaveGame(updatedGame);
+        saveSaveGame(updatedGame);
+        setIsStreaming(false);
+      },
+      (errMsg) => {
+        setError(errMsg);
+        setIsStreaming(false);
+      }
+    );
+  };
+
   useEffect(() => {
     if (currentMilestone && !displayText) {
       setDisplayText(`>> ${currentMilestone.title}\n\n${currentMilestone.context}`);
     }
   }, [currentMilestone]);
+
+  if (saveConflict) {
+    const handleReset = () => {
+      clearSaveGame(scriptId);
+      const newGame: SaveGame = {
+        script_id: scriptId,
+        current_milestone: saveConflict.startMilestone,
+        history: [],
+      };
+      setSaveGame(newGame);
+      saveSaveGame(newGame);
+      setSaveConflict(null);
+    };
+    return (
+      <div className="app-container flex items-center justify-center min-h-screen">
+        <div className="noise" />
+        <div className="relative z-10 border border-tactical-amber/40 bg-tactical-panel/80 p-8 max-w-md w-full mx-4 rounded-lg">
+          <div className="text-[8px] text-tactical-amber uppercase tracking-[0.3em] font-tech mb-3">存檔衝突</div>
+          <div className="text-white/80 text-sm font-mono mb-2">
+            你的存檔指向的節點已不存在：
+          </div>
+          <div className="text-tactical-amber font-mono text-xs bg-black/30 px-3 py-2 rounded mb-4 border border-tactical-amber/20">
+            {saveConflict.milestoneId}
+          </div>
+          <div className="text-white/50 text-xs font-tech mb-6 leading-relaxed">
+            劇本可能已更新，此節點已被移除。你可以重置進度從頭開始，或返回選擇其他劇本。
+            <br /><br />
+            <span className="text-tactical-error/80">重置將清除此劇本的所有存檔記錄，此操作無法復原。</span>
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onRestart}
+              className="flex-1 py-3 border border-white/15 text-white/40 text-[10px] font-tech tracking-widest rounded-lg hover:border-white/30 hover:text-white/60 transition-colors"
+            >
+              返回
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="flex-1 py-3 border border-tactical-error/50 bg-tactical-error/10 text-tactical-error text-[10px] font-tech tracking-widest rounded-lg hover:bg-tactical-error/20 transition-colors"
+            >
+              重置進度
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -415,31 +666,63 @@ const MainPage = ({ config, scriptId, onRestart }: { config: OllamaConfig; scrip
                 重新開始
               </button>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-                {currentMilestone.choices.map((choice: string, idx: number) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleChoice(choice)}
-                    disabled={isStreaming}
-                    className={`flex items-start gap-3 p-3 md:p-4 border rounded-lg text-left transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
-                      idx % 2 === 0
-                        ? 'border-tactical-amber/30 hover:border-tactical-amber/60 hover:bg-tactical-amber/5'
-                        : 'border-tactical-teal/30 hover:border-tactical-teal/60 hover:bg-tactical-teal/5'
-                    }`}
-                  >
-                    <span className={`text-[10px] font-bold tracking-[0.2em] shrink-0 pt-0.5 font-mono ${
-                      idx % 2 === 0 ? 'text-tactical-amber' : 'text-tactical-teal'
-                    }`}>
-                      {String(idx + 1).padStart(2, '0')}
-                    </span>
-                    <div className={`w-px self-stretch rounded-full shrink-0 ${
-                      idx % 2 === 0 ? 'bg-tactical-amber/20' : 'bg-tactical-teal/20'
-                    }`} />
-                    <span className="text-xs md:text-sm text-white/60 leading-relaxed font-tech">{choice}</span>
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+                  {(dynamicChoices ?? currentMilestone.choices).map((displayChoice: string, idx: number) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleChoice(currentMilestone.choices[idx])}
+                      disabled={isStreaming}
+                      className={`flex items-start gap-3 p-3 md:p-4 border rounded-lg text-left transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+                        idx % 2 === 0
+                          ? 'border-tactical-amber/30 hover:border-tactical-amber/60 hover:bg-tactical-amber/5'
+                          : 'border-tactical-teal/30 hover:border-tactical-teal/60 hover:bg-tactical-teal/5'
+                      }`}
+                    >
+                      <span className={`text-[10px] font-bold tracking-[0.2em] shrink-0 pt-0.5 font-mono ${
+                        idx % 2 === 0 ? 'text-tactical-amber' : 'text-tactical-teal'
+                      }`}>
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
+                      <div className={`w-px self-stretch rounded-full shrink-0 ${
+                        idx % 2 === 0 ? 'bg-tactical-amber/20' : 'bg-tactical-teal/20'
+                      }`} />
+                      <span className="text-xs md:text-sm text-white/60 leading-relaxed font-tech">{displayChoice}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Free input */}
+                <div className="mt-3 pt-3 border-t border-white/5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-1.5 h-1.5 bg-white/20 rounded-full" />
+                    <span className="text-[8px] text-white/20 uppercase tracking-[0.3em] font-tech">自由行動</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={freeInputText}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setFreeInputText(e.target.value)}
+                      onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleFreeInput(); }}
+                      disabled={isStreaming}
+                      maxLength={300}
+                      placeholder="輸入任意行動..."
+                      className={`flex-1 bg-tactical-panel border rounded-lg px-3 py-2 text-sm text-white/70 font-mono placeholder:text-white/15 outline-none transition-colors focus:border-white/30 disabled:opacity-30 disabled:cursor-not-allowed ${
+                        freeInputError ? 'border-tactical-error flicker' : 'border-white/10'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleFreeInput}
+                      disabled={isStreaming}
+                      className="shrink-0 px-4 py-2 border border-white/15 text-white/40 text-[10px] font-tech tracking-widest rounded-lg hover:border-white/30 hover:text-white/60 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      送出
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>

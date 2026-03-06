@@ -21,6 +21,7 @@ export interface SaveGame {
   script_id: string;
   current_milestone: string;
   history: Array<{ role: 'user' | 'assistant'; content: string }>;
+  savedAt?: string;
 }
 
 export interface OllamaConfig {

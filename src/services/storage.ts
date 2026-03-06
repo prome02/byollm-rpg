@@ -3,7 +3,7 @@ import type { SaveGame, OllamaConfig } from '../types/script';
 
 const KEYS = {
   OLLAMA_CONFIG: 'ollama_config',
-  SAVE_GAME: 'save_game',
+  SAVE_GAME: 'neon-hell-save',
 } as const;
 
 const DEFAULT_CONFIG: OllamaConfig = {
@@ -40,7 +40,8 @@ export function loadSaveGame(scriptId: string): SaveGame | null {
 }
 
 export function saveSaveGame(game: SaveGame): void {
-  localStorage.setItem(saveGameKey(game.script_id), JSON.stringify(game));
+  const record: SaveGame = { ...game, savedAt: new Date().toISOString() };
+  localStorage.setItem(saveGameKey(game.script_id), JSON.stringify(record));
 }
 
 export function clearSaveGame(scriptId: string): void {
