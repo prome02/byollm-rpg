@@ -70,7 +70,13 @@ export async function streamCompletion(
     });
 
     if (!response.ok) {
-      onError(`連線失敗：${response.status} ${response.statusText}`);
+      if (response.status === 429) {
+        onError('請求過於頻繁，請稍候片刻再試。（Rate limit）');
+      } else if (response.status === 401) {
+        onError('API Key 無效或已過期，請在底部設定面板重新輸入。');
+      } else {
+        onError(`連線失敗：${response.status} ${response.statusText}`);
+      }
       return;
     }
 

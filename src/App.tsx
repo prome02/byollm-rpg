@@ -341,7 +341,7 @@ const EntryPage = ({ onJoin }: { onJoin: (config: OllamaConfig, scriptId: Script
 };
 
 // --- Main Page ---
-const MainPage = ({ config, scriptId, onRestart }: { config: OllamaConfig; scriptId: string; onRestart: () => void }) => {
+const MainPage = ({ config, scriptId, onRestart, onUpdateConfig }: { config: OllamaConfig; scriptId: string; onRestart: () => void; onUpdateConfig: (config: OllamaConfig) => void }) => {
   const [meta, setMeta] = useState<ScriptMeta | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [saveGame, setSaveGame] = useState<SaveGame | null>(null);
@@ -353,6 +353,9 @@ const MainPage = ({ config, scriptId, onRestart }: { config: OllamaConfig; scrip
   const [freeInputText, setFreeInputText] = useState('');
   const [freeInputError, setFreeInputError] = useState(false);
   const [dynamicChoices, setDynamicChoices] = useState<string[] | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settingsModel, setSettingsModel] = useState(config.model);
+  const [settingsKey, setSettingsKey] = useState(config.apiKey ?? '');
   const lastNarrativeRef = useRef<string>('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -812,11 +815,72 @@ const MainPage = ({ config, scriptId, onRestart }: { config: OllamaConfig; scrip
         </div>
       </div>
 
+      {/* Settings panel */}
+      {showSettings && (
+        <div className="relative z-20 border-t border-white/10 bg-tactical-panel/95 px-4 md:px-6 py-4 shrink-0">
+          <div className="text-[8px] text-white/25 uppercase tracking-[0.3em] font-tech mb-3">切換模型</div>
+          <div className="flex gap-2 items-end">
+            {config.provider === 'openrouter' && (
+              <div className="w-40 shrink-0">
+                <div className="text-[7px] text-white/20 uppercase tracking-widest font-tech mb-1">API KEY</div>
+                <input
+                  type="password"
+                  value={settingsKey}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsKey(e.target.value)}
+                  placeholder="sk-or-..."
+                  className="w-full bg-tactical-bg border border-white/10 rounded px-3 py-2 text-xs text-tactical-teal font-mono placeholder:text-white/15 outline-none focus:border-tactical-teal/50"
+                />
+              </div>
+            )}
+            <div className="flex-1">
+              <div className="text-[7px] text-white/20 uppercase tracking-widest font-tech mb-1">MODEL</div>
+              <input
+                type="text"
+                value={settingsModel}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSettingsModel(e.target.value)}
+                placeholder={config.provider === 'openrouter' ? 'meta-llama/llama-3.1-8b-instruct:free' : 'model-name'}
+                className="w-full bg-tactical-bg border border-white/10 rounded px-3 py-2 text-xs text-tactical-teal font-mono placeholder:text-white/15 outline-none focus:border-tactical-teal/50"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const updated: OllamaConfig = {
+                  ...config,
+                  model: settingsModel.trim() || config.model,
+                  ...(config.provider === 'openrouter' ? { apiKey: settingsKey.trim() || config.apiKey } : {}),
+                };
+                saveOllamaConfig(updated);
+                onUpdateConfig(updated);
+                setShowSettings(false);
+              }}
+              className="shrink-0 px-4 py-2 bg-tactical-teal text-tactical-bg text-[9px] font-tech tracking-widest rounded hover:bg-tactical-teal/80 transition-colors"
+            >
+              套用
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowSettings(false)}
+              className="shrink-0 px-3 py-2 border border-white/10 text-white/30 text-[9px] font-tech rounded hover:border-white/25 transition-colors"
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <footer className="relative z-10 flex items-center justify-between px-4 md:px-6 h-8 bg-black/30 border-t border-white/5 shrink-0">
         <div className="flex gap-4 text-[7px] text-white/20 uppercase tracking-widest font-tech">
           <span className="tactical-blink">{meta.id}</span>
-          <span>{config.model}</span>
+          <button
+            type="button"
+            onClick={() => { setSettingsModel(config.model); setSettingsKey(config.apiKey ?? ''); setShowSettings((v) => !v); }}
+            className="text-white/20 hover:text-tactical-teal/60 transition-colors font-mono"
+            title="切換模型"
+          >
+            {config.model}
+          </button>
         </div>
         <div className="flex items-center gap-3 text-[7px] text-white/20 uppercase tracking-widest font-tech">
           <span className="text-tactical-teal/40 animate-pulse">LOCAL-FIRST</span>
@@ -841,6 +905,17 @@ export default function App() {
     setSession({ config, scriptId });
   };
 
+  const handleUpdateConfig = (config: OllamaConfig) => {
+    setSession((prev) => prev ? { ...prev, config } : null);
+  };
+
   if (!session) return <EntryPage onJoin={handleJoin} />;
-  return <MainPage config={session.config} scriptId={session.scriptId} onRestart={() => setSession(null)} />;
+  return (
+    <MainPage
+      config={session.config}
+      scriptId={session.scriptId}
+      onRestart={() => setSession(null)}
+      onUpdateConfig={handleUpdateConfig}
+    />
+  );
 }
