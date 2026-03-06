@@ -31,10 +31,18 @@ type ScriptEntry = { id: string; title: string; subtitle: string; file: string }
 type ScriptId = string;
 
 // --- Entry Page ---
+const OPENROUTER_FREE_MODELS = [
+  'meta-llama/llama-3.1-8b-instruct:free',
+  'google/gemma-3-12b-it:free',
+  'mistralai/mistral-7b-instruct:free',
+];
+
 const EntryPage = ({ onJoin }: { onJoin: (config: OllamaConfig, scriptId: ScriptId) => void }) => {
   const saved = loadOllamaConfig();
+  const [provider, setProvider] = useState<'ollama' | 'openrouter'>(saved.provider ?? 'ollama');
   const [endpoint, setEndpoint] = useState<string>(saved.endpoint);
   const [model, setModel] = useState<string>(saved.model);
+  const [apiKey, setApiKey] = useState<string>(saved.apiKey ?? '');
   const [scripts, setScripts] = useState<ScriptEntry[]>([]);
   const [selectedScript, setSelectedScript] = useState<ScriptId>('');
   const [scriptSaves, setScriptSaves] = useState<Record<string, SaveGame | null>>({});
@@ -90,14 +98,21 @@ const EntryPage = ({ onJoin }: { onJoin: (config: OllamaConfig, scriptId: Script
   const [isError, setIsError] = useState(false);
 
   const handleSubmit = () => {
-    const trimmedEndpoint = endpoint.trim();
     const trimmedModel = model.trim();
-    if (!trimmedEndpoint || !trimmedModel) {
+    const trimmedKey = apiKey.trim();
+    const trimmedEndpoint = endpoint.trim();
+    const invalid = provider === 'openrouter' ? (!trimmedKey || !trimmedModel) : (!trimmedEndpoint || !trimmedModel);
+    if (invalid) {
       setIsError(true);
       setTimeout(() => setIsError(false), 800);
       return;
     }
-    const config: OllamaConfig = { endpoint: trimmedEndpoint, model: trimmedModel };
+    const config: OllamaConfig = {
+      provider,
+      endpoint: trimmedEndpoint,
+      model: trimmedModel,
+      ...(provider === 'openrouter' ? { apiKey: trimmedKey } : {}),
+    };
     saveOllamaConfig(config);
     onJoin(config, selectedScript);
   };
@@ -186,56 +201,125 @@ const EntryPage = ({ onJoin }: { onJoin: (config: OllamaConfig, scriptId: Script
           </div>
         </div>
 
-        {/* Ollama config */}
+        {/* Provider toggle */}
+        <div className="mb-4">
+          <div className="text-[8px] text-white/25 uppercase tracking-[0.3em] font-tech mb-3">LLM 接 入 方 式</div>
+          <div className="flex gap-2">
+            {(['ollama', 'openrouter'] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setProvider(p)}
+                className={`flex-1 py-2.5 text-[9px] font-tech tracking-widest uppercase rounded-lg border transition-colors ${
+                  provider === p
+                    ? 'border-tactical-teal/70 bg-tactical-teal/10 text-tactical-teal'
+                    : 'border-white/10 text-white/30 hover:border-white/20 hover:text-white/50'
+                }`}
+              >
+                {p === 'ollama' ? 'Ollama · 本地' : 'OpenRouter · 雲端'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* LLM config */}
         <div className="mb-6">
-          <div className="text-[8px] text-white/25 uppercase tracking-[0.3em] font-tech mb-3">OLLAMA 設 定</div>
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="flex-1">
-              <div className="text-[8px] text-white/20 uppercase tracking-widest font-tech mb-1.5">ENDPOINT</div>
-              <input
-                type="text"
-                className={`w-full bg-tactical-panel border rounded-lg px-4 py-3 text-sm text-tactical-teal font-mono placeholder:text-white/20 outline-none transition-colors focus:border-tactical-teal/60 ${isError ? 'border-tactical-error flicker' : 'border-white/10'}`}
-                placeholder="http://localhost:11434"
-                value={endpoint}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setEndpoint(e.target.value)}
-                onKeyDown={handleKeyDown}
-                autoFocus
-              />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-[8px] text-white/20 uppercase tracking-widest font-tech">MODEL</span>
-                {isFetchingModels && (
-                  <span className="text-[7px] text-tactical-teal/50 font-tech animate-pulse">SCANNING...</span>
-                )}
-                {!isFetchingModels && ollamaModels.length > 0 && (
-                  <span className="text-[7px] text-tactical-teal/50 font-tech">{ollamaModels.length} AVAILABLE</span>
-                )}
-              </div>
-              {ollamaModels.length > 0 ? (
-                <select
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  className={`w-full bg-tactical-panel border rounded-lg px-4 py-3 text-sm text-tactical-teal font-mono outline-none transition-colors focus:border-tactical-teal/60 appearance-none cursor-pointer ${isError ? 'border-tactical-error flicker' : 'border-white/10'}`}
-                >
-                  {ollamaModels.map((m) => (
-                    <option key={m} value={m} className="bg-tactical-panel text-tactical-teal">
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              ) : (
+          {provider === 'ollama' ? (
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="flex-1">
+                <div className="text-[8px] text-white/20 uppercase tracking-widest font-tech mb-1.5">ENDPOINT</div>
                 <input
                   type="text"
                   className={`w-full bg-tactical-panel border rounded-lg px-4 py-3 text-sm text-tactical-teal font-mono placeholder:text-white/20 outline-none transition-colors focus:border-tactical-teal/60 ${isError ? 'border-tactical-error flicker' : 'border-white/10'}`}
-                  placeholder="minimax-m2.5:cloud"
+                  placeholder="http://localhost:11434"
+                  value={endpoint}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEndpoint(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
+                />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-[8px] text-white/20 uppercase tracking-widest font-tech">MODEL</span>
+                  {isFetchingModels && (
+                    <span className="text-[7px] text-tactical-teal/50 font-tech animate-pulse">SCANNING...</span>
+                  )}
+                  {!isFetchingModels && ollamaModels.length > 0 && (
+                    <span className="text-[7px] text-tactical-teal/50 font-tech">{ollamaModels.length} AVAILABLE</span>
+                  )}
+                </div>
+                {ollamaModels.length > 0 ? (
+                  <select
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    className={`w-full bg-tactical-panel border rounded-lg px-4 py-3 text-sm text-tactical-teal font-mono outline-none transition-colors focus:border-tactical-teal/60 appearance-none cursor-pointer ${isError ? 'border-tactical-error flicker' : 'border-white/10'}`}
+                  >
+                    {ollamaModels.map((m) => (
+                      <option key={m} value={m} className="bg-tactical-panel text-tactical-teal">
+                        {m}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    className={`w-full bg-tactical-panel border rounded-lg px-4 py-3 text-sm text-tactical-teal font-mono placeholder:text-white/20 outline-none transition-colors focus:border-tactical-teal/60 ${isError ? 'border-tactical-error flicker' : 'border-white/10'}`}
+                    placeholder="minimax-m2.5:cloud"
+                    value={model}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setModel(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                  />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <div>
+                <div className="text-[8px] text-white/20 uppercase tracking-widest font-tech mb-1.5">OPENROUTER API KEY</div>
+                <input
+                  type="password"
+                  className={`w-full bg-tactical-panel border rounded-lg px-4 py-3 text-sm text-tactical-teal font-mono placeholder:text-white/20 outline-none transition-colors focus:border-tactical-teal/60 ${isError ? 'border-tactical-error flicker' : 'border-white/10'}`}
+                  placeholder="sk-or-..."
+                  value={apiKey}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  autoFocus
+                />
+                <div className="mt-1.5 text-[8px] text-white/20 font-tech">
+                  Key 僅存於你的瀏覽器，不經過我們的伺服器。
+                  <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="ml-1 text-tactical-teal/40 hover:text-tactical-teal/70 transition-colors">取得 Key →</a>
+                </div>
+              </div>
+              <div>
+                <div className="text-[8px] text-white/20 uppercase tracking-widest font-tech mb-1.5">MODEL</div>
+                <input
+                  type="text"
+                  className={`w-full bg-tactical-panel border rounded-lg px-4 py-3 text-sm text-tactical-teal font-mono placeholder:text-white/20 outline-none transition-colors focus:border-tactical-teal/60 ${isError ? 'border-tactical-error flicker' : 'border-white/10'}`}
+                  placeholder="meta-llama/llama-3.1-8b-instruct:free"
                   value={model}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setModel(e.target.value)}
                   onKeyDown={handleKeyDown}
                 />
-              )}
+                <div className="mt-1.5 flex gap-2 flex-wrap">
+                  {OPENROUTER_FREE_MODELS.map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setModel(m)}
+                      className={`text-[7px] font-mono px-2 py-0.5 rounded border transition-colors ${
+                        model === m
+                          ? 'border-tactical-teal/50 text-tactical-teal/70 bg-tactical-teal/10'
+                          : 'border-white/10 text-white/20 hover:border-white/25 hover:text-white/40'
+                      }`}
+                    >
+                      {m.split('/')[1]}
+                    </button>
+                  ))}
+                  <span className="text-[7px] text-white/15 font-tech self-center">免費模型</span>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <button
@@ -248,7 +332,7 @@ const EntryPage = ({ onJoin }: { onJoin: (config: OllamaConfig, scriptId: Script
 
         <div className="mt-6 flex justify-between text-[8px] text-white/20 uppercase tracking-widest font-tech">
           <span className="tactical-blink">LOCAL-FIRST</span>
-          <span>OLLAMA POWERED</span>
+          <span>{provider === 'openrouter' ? 'OPENROUTER POWERED' : 'OLLAMA POWERED'}</span>
           <span>&copy; 2088</span>
         </div>
       </div>

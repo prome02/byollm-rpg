@@ -20,13 +20,30 @@ function withDefense(messages: Message[]): Message[] {
   });
 }
 
+function buildHeaders(config: OllamaConfig): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (config.provider === 'openrouter' && config.apiKey) {
+    headers['Authorization'] = `Bearer ${config.apiKey}`;
+    headers['HTTP-Referer'] = 'https://byollm-rpg.pages.dev';
+    headers['X-Title'] = 'NEON HELL 2088';
+  }
+  return headers;
+}
+
+function buildEndpoint(config: OllamaConfig): string {
+  if (config.provider === 'openrouter') {
+    return 'https://openrouter.ai/api/v1/chat/completions';
+  }
+  return `${config.endpoint}/v1/chat/completions`;
+}
+
 export async function generateText(
   config: OllamaConfig,
   messages: Message[],
 ): Promise<string> {
-  const response = await fetch(`${config.endpoint}/v1/chat/completions`, {
+  const response = await fetch(buildEndpoint(config), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildHeaders(config),
     body: JSON.stringify({ model: config.model, messages, stream: false }),
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -42,9 +59,9 @@ export async function streamCompletion(
   onError: (error: string) => void
 ): Promise<void> {
   try {
-    const response = await fetch(`${config.endpoint}/v1/chat/completions`, {
+    const response = await fetch(buildEndpoint(config), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: buildHeaders(config),
       body: JSON.stringify({
         model: config.model,
         messages: withDefense(messages),

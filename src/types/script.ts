@@ -25,6 +25,8 @@ export interface SaveGame {
 }
 
 export interface OllamaConfig {
+  provider: 'ollama' | 'openrouter';
   endpoint: string;
   model: string;
+  apiKey?: string;
 }

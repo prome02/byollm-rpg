@@ -7,6 +7,7 @@ const KEYS = {
 } as const;
 
 const DEFAULT_CONFIG: OllamaConfig = {
+  provider: 'ollama',
   endpoint: 'http://localhost:11434',
   model: 'minimax-m2.5:cloud',
 };
